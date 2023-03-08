@@ -1,17 +1,20 @@
 package ru.yandex.practicum.filmorate.model;
 
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
 
 @Data
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class User {
 
-    private int id;
-    private final String email;
-    private final String login;
-    private String name;
-    private final LocalDate birthday;
+    int id;
+    final String email;
+    final String login;
+    String name;
+    final LocalDate birthday;
 
     public User(String email, String login, String name, LocalDate birthday) {
         this.email = email;
