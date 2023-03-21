@@ -92,7 +92,7 @@ class UserValidatorTest {
     @Test
     void shouldThrowExceptionWhenBirthdayIsAfterNow() {
         User incorrectUser = new User("user@mail.ru", "user user", "UserName", LocalDate.of(2023,
-                3, 10));
+                3, 30));
 
         final ValidationException exception = assertThrows(
                 ValidationException.class,
