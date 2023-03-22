@@ -34,18 +34,18 @@ public class UserService {
         return storage.update(user);
     }
 
-    public User findUserById(Long userId) {
-        if (storage.findUserById(userId).isPresent()) {
-            return storage.findUserById(userId).get();
+    public User findById(Long userId) {
+        if (storage.findById(userId).isPresent()) {
+            return storage.findById(userId).get();
         } else {
             throw new InvalidIdException("Неверный идентификатор");
         }
     }
 
     public User addFriend (long userId, long friendId) {
-        if (storage.findUserById(userId).isPresent() && storage.findUserById(friendId).isPresent()){
-            User user = storage.findUserById(userId).get();
-            User friend = storage.findUserById(friendId).get();
+        if (storage.findById(userId).isPresent() && storage.findById(friendId).isPresent()){
+            User user = storage.findById(userId).get();
+            User friend = storage.findById(friendId).get();
             user.getFriends().add(friendId);
             friend.getFriends().add(userId);
             log.debug("Пользователи с id " + userId + ", " + friendId + " добавлены друг другу в друзья");
@@ -56,9 +56,9 @@ public class UserService {
     }
 
     public User deleteFriend (long userId, long friendId) {
-        if (storage.findUserById(userId).isPresent() && storage.findUserById(friendId).isPresent()){
-            User user = storage.findUserById(userId).get();
-            User friend = storage.findUserById(friendId).get();
+        if (storage.findById(userId).isPresent() && storage.findById(friendId).isPresent()){
+            User user = storage.findById(userId).get();
+            User friend = storage.findById(friendId).get();
             user.getFriends().remove(friendId);
             friend.getFriends().remove(userId);
             log.debug("Пользователи с id " + userId + ", " + friendId + " удалены друг у друга из друзей");
@@ -69,11 +69,11 @@ public class UserService {
     }
 
     public List<User> getFriends(long userId) {
-        if (storage.findUserById(userId).isPresent()) {
-            Set <Long> userFriendsId = storage.findUserById(userId).get().getFriends();
+        if (storage.findById(userId).isPresent()) {
+            Set <Long> userFriendsId = storage.findById(userId).get().getFriends();
             List<User>friends = new ArrayList<>();
             for (Long id : userFriendsId) {
-                User friend = storage.findUserById(id).get();
+                User friend = storage.findById(id).get();
                 friends.add(friend);
             }
             return friends;
@@ -83,14 +83,14 @@ public class UserService {
     }
 
     public List<User> getCommonFriends(long userId, long otherUserId) {
-        if (storage.findUserById(userId).isPresent() && storage.findUserById(otherUserId).isPresent()) {
-            Set <Long> userFriendsId = storage.findUserById(userId).get().getFriends();
-            Set <Long> otherUserFriendsId = storage.findUserById(otherUserId).get().getFriends();
+        if (storage.findById(userId).isPresent() && storage.findById(otherUserId).isPresent()) {
+            Set <Long> userFriendsId = storage.findById(userId).get().getFriends();
+            Set <Long> otherUserFriendsId = storage.findById(otherUserId).get().getFriends();
             userFriendsId.retainAll(otherUserFriendsId);
 
             List<User>commonFriends = new ArrayList<>();
             for (Long id : userFriendsId) {
-                User friend = storage.findUserById(id).get();
+                User friend = storage.findById(id).get();
                 commonFriends.add(friend);
             }
             return commonFriends;

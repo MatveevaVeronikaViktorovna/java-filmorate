@@ -34,8 +34,8 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public User findUser(@PathVariable Long id){
-        return service.findUserById(id);
+    public User findById(@PathVariable Long id){
+        return service.findById(id);
     }
 
     @PutMapping("{id}/friends/{friendId}")

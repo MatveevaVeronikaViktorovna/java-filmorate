@@ -6,10 +6,7 @@ import ru.yandex.practicum.filmorate.exceptions.InvalidIdException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.validators.FilmValidator;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 @Slf4j
@@ -44,6 +41,13 @@ public class InMemoryFilmStorage implements FilmStorage {
             log.warn("Неверный идентификатор");
             throw new InvalidIdException("Неверный идентификатор");
         }
+    }
+
+    public Optional<Film> findById(Long filmId) {
+        if (!films.containsKey(filmId)) {
+            throw new InvalidIdException("Фильм с id " + filmId + " не найден");
+        }
+        return Optional.of(films.get(filmId));
     }
 
 }
