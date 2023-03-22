@@ -1,23 +1,22 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.InvalidIdException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.validators.UserValidator;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 @Slf4j
+@Data
 public class InMemoryUserStorage implements UserStorage {
 
-    private final Map<Integer, User> users = new HashMap<>();
-    UserValidator validator = new UserValidator();
-    private int newId;
+    private final Map<Long, User> users = new HashMap<>();
+    private final UserValidator validator = new UserValidator();
+    private long newId;
 
     public List<User> findAll() {
         return new ArrayList<>(users.values());
@@ -44,6 +43,13 @@ public class InMemoryUserStorage implements UserStorage {
             log.warn("Неверный идентификатор");
             throw new InvalidIdException("Неверный идентификатор");
         }
+    }
+
+    public Optional<User> findUserById(Long userId) {
+        if (!users.containsKey(userId)) {
+            throw new InvalidIdException("Пользователь с id " + userId + " не найден");
+        }
+        return Optional.of(users.get(userId));
     }
 
 }

@@ -15,9 +15,9 @@ import java.util.Map;
 @Slf4j
 public class InMemoryFilmStorage implements FilmStorage {
 
-    private final Map<Integer, Film> films = new HashMap<>();
+    private final Map<Long, Film> films = new HashMap<>();
     FilmValidator validator = new FilmValidator();
-    private int newId;
+    private long newId;
 
     public List<Film> findAll() {
         return new ArrayList<>(films.values());
