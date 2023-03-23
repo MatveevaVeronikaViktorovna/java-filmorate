@@ -25,7 +25,7 @@ public class InMemoryFilmStorage implements FilmStorage {
             newId++;
             film.setId(newId);
             films.put(film.getId(), film);
-            log.debug(film.toString());
+            log.debug("Добавлен новый фильм: " + film);
             return film;
         } else {
             return null;
@@ -35,16 +35,17 @@ public class InMemoryFilmStorage implements FilmStorage {
     public Film update(Film film) {
         if (films.containsKey(film.getId()) && validator.isValid(film)) {
             films.put(film.getId(), film);
-            log.debug(film.toString());
+            log.debug("Фильм с id " + film.getId() + " обновлен: " + film);
             return film;
         } else {
-            log.warn("Неверный идентификатор");
-            throw new InvalidIdException("Неверный идентификатор");
+            log.warn("Фильм с id " + film.getId() + " не найден");
+            throw new InvalidIdException("Фильм с id " + film.getId() + " не найден");
         }
     }
 
     public Optional<Film> findById(Long filmId) {
         if (!films.containsKey(filmId)){
+            log.warn("Фильм с id " + filmId + " не найден");
             throw new InvalidIdException("Фильм с id " + filmId + " не найден");
         }
         return Optional.of(films.get(filmId));

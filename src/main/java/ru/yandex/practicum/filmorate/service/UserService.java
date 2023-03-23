@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -38,6 +39,7 @@ public class UserService {
         if (storage.findById(userId).isPresent()) {
             return storage.findById(userId).get();
         } else {
+            log.warn("Пользователь с id " + userId + " не найден");
             throw new InvalidIdException("Пользователь с id " + userId + " не найден");
         }
     }
@@ -48,10 +50,14 @@ public class UserService {
             User friend = storage.findById(friendId).get();
             user.getFriends().add(friendId);
             friend.getFriends().add(userId);
-            log.debug("Пользователи с id " + userId + ", " + friendId + " добавлены друг другу в друзья");
+            log.debug("Пользователи с id " + userId + " и " + friendId + " добавлены друг другу в друзья");
             return user;
+        } else if (storage.findById(userId).isPresent()) {
+            log.warn("Пользователь с id " + friendId + " не найден");
+            throw new InvalidIdException("Пользователь с id " + friendId + " не найден");
         } else {
-            throw new InvalidIdException("Неверный идентификатор");
+            log.warn("Пользователь с id " + userId + " не найден");
+            throw new InvalidIdException("Пользователь с id " + userId + " не найден");
         }
     }
 
@@ -61,10 +67,14 @@ public class UserService {
             User friend = storage.findById(friendId).get();
             user.getFriends().remove(friendId);
             friend.getFriends().remove(userId);
-            log.debug("Пользователи с id " + userId + ", " + friendId + " удалены друг у друга из друзей");
+            log.debug("Пользователи с id " + userId + " и " + friendId + " удалены друг у друга из друзей");
             return user;
+        } else if (storage.findById(userId).isPresent()) {
+            log.warn("Пользователь с id " + friendId + " не найден");
+            throw new InvalidIdException("Пользователь с id " + friendId + " не найден");
         } else {
-            throw new InvalidIdException("Неверный идентификатор");
+            log.warn("Пользователь с id " + userId + " не найден");
+            throw new InvalidIdException("Пользователь с id " + userId + " не найден");
         }
     }
 
@@ -76,30 +86,35 @@ public class UserService {
                 User friend = storage.findById(id).get();
                 friends.add(friend);
             }
-            System.out.println(friends);
             return friends;
         } else {
-            throw new InvalidIdException("Неверный идентификатор");
+            log.warn("Пользователь с id " + userId + " не найден");
+            throw new InvalidIdException("Пользователь с id " + userId + " не найден");
         }
     }
 
     public List<User> getCommonFriends(long userId, long otherUserId) {
         if (storage.findById(userId).isPresent() && storage.findById(otherUserId).isPresent()) {
-            Set <Long> userFriendsId = storage.findById(userId).get().getFriends();
-            Set <Long> otherUserFriendsId = storage.findById(otherUserId).get().getFriends();
-            userFriendsId.retainAll(otherUserFriendsId);
+            User user = storage.findById(userId).get();
+            User otherUser = storage.findById(otherUserId).get();
+            List<Long> userFriends = new ArrayList<>(user.getFriends());
+            userFriends = userFriends.stream()
+                    .filter(otherUser.getFriends()::contains)
+                    .collect(Collectors.toList());
 
             List<User>commonFriends = new ArrayList<>();
-            for (Long id : userFriendsId) {
+            for (Long id : userFriends) {
                 User friend = storage.findById(id).get();
                 commonFriends.add(friend);
             }
             return commonFriends;
+        } else if (storage.findById(userId).isPresent()) {
+            log.warn("Пользователь с id " + otherUserId + " не найден");
+            throw new InvalidIdException("Пользователь с id " + otherUserId + " не найден");
         } else {
-            throw new InvalidIdException("Неверный идентификатор");
+            log.warn("Пользователь с id " + userId + " не найден");
+            throw new InvalidIdException("Пользователь с id " + userId + " не найден");
         }
     }
-
-
 
 }

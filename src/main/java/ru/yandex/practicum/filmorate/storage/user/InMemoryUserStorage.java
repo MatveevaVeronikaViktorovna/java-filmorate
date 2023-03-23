@@ -27,7 +27,7 @@ public class InMemoryUserStorage implements UserStorage {
             newId++;
             user.setId(newId);
             users.put(user.getId(), user);
-            log.debug(user.toString());
+            log.debug("Добавлен новый пользователь: " + user);
             return user;
         } else {
             return null;
@@ -36,6 +36,7 @@ public class InMemoryUserStorage implements UserStorage {
 
     public Optional<User> findById(Long userId) {
         if (!users.containsKey(userId)) {
+            log.warn("Пользователь с id " + userId + " не найден");
             throw new InvalidIdException("Пользователь с id " + userId + " не найден");
         }
         return Optional.of(users.get(userId));
@@ -44,11 +45,11 @@ public class InMemoryUserStorage implements UserStorage {
     public User update(User user) {
         if (users.containsKey(user.getId()) && validator.isValid(user)) {
             users.put(user.getId(), user);
-            log.debug(user.toString());
+            log.debug("Пользователь с id " + user.getId() + " обновлен: " + user);
             return user;
         } else {
-            log.warn("Неверный идентификатор");
-            throw new InvalidIdException("Неверный идентификатор");
+            log.warn("Пользователь с id " + user.getId() + " не найден");
+            throw new InvalidIdException("Пользователь с id " + user.getId() + " не найден");
         }
     }
 

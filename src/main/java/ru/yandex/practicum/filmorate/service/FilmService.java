@@ -40,7 +40,8 @@ public class FilmService {
         if (filmStorage.findById(filmId).isPresent()) {
             return filmStorage.findById(filmId).get();
         } else {
-            throw new InvalidIdException("Неверный идентификатор");
+            log.warn("Фильм с id " + filmId + " не найден");
+            throw new InvalidIdException("Фильм с id " + filmId + " не найден");
         }
     }
 
@@ -48,10 +49,14 @@ public class FilmService {
         if (filmStorage.findById(filmId).isPresent() && userStorage.findById(userId).isPresent()){
             Film film = filmStorage.findById(filmId).get();
             film.getLikes().add(userId);
-            log.debug("Пользователь с id " + userId + "поставил лайу фильму с id " + filmId);
+            log.debug("Пользователь с id " + userId + " поставил лайк фильму с id " + filmId);
             return film;
+        } else if (filmStorage.findById(filmId).isPresent()){
+            log.warn("Пользователь с id " + userId + " не найден");
+            throw new InvalidIdException("Пользователь с id " + userId + " не найден");
         } else {
-            throw new InvalidIdException("Неверный идентификатор");
+            log.warn("Фильм с id " + filmId + " не найден");
+            throw new InvalidIdException("Фильм с id " + filmId + " не найден");
         }
     }
 
@@ -59,10 +64,14 @@ public class FilmService {
         if (filmStorage.findById(filmId).isPresent() && userStorage.findById(userId).isPresent()){
             Film film = filmStorage.findById(filmId).get();
             film.getLikes().remove(userId);
-            log.debug("Пользователь с id " + userId + "удалил лайк фильму с id " + filmId);
+            log.debug("Пользователь с id " + userId + " удалил лайк фильму с id " + filmId);
             return film;
+        } else if (filmStorage.findById(filmId).isPresent()){
+            log.warn("Пользователь с id " + userId + " не найден");
+            throw new InvalidIdException("Пользователь с id " + userId + " не найден");
         } else {
-            throw new InvalidIdException("Неверный идентификатор");
+            log.warn("Фильм с id " + filmId + " не найден");
+            throw new InvalidIdException("Фильм с id " + filmId + " не найден");
         }
     }
 
