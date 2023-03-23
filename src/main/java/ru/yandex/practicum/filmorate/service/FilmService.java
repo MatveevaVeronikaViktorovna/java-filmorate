@@ -36,7 +36,7 @@ public class FilmService {
         return filmStorage.update(film);
     }
 
-    public Film findById(Long filmId){
+    public Film findById(Long filmId) {
         if (filmStorage.findById(filmId).isPresent()) {
             return filmStorage.findById(filmId).get();
         } else {
@@ -45,13 +45,13 @@ public class FilmService {
         }
     }
 
-    public Film addLike (Long filmId, Long userId) {
-        if (filmStorage.findById(filmId).isPresent() && userStorage.findById(userId).isPresent()){
+    public Film addLike(Long filmId, Long userId) {
+        if (filmStorage.findById(filmId).isPresent() && userStorage.findById(userId).isPresent()) {
             Film film = filmStorage.findById(filmId).get();
             film.getLikes().add(userId);
             log.debug("Пользователь с id " + userId + " поставил лайк фильму с id " + filmId);
             return film;
-        } else if (filmStorage.findById(filmId).isPresent()){
+        } else if (filmStorage.findById(filmId).isPresent()) {
             log.warn("Пользователь с id " + userId + " не найден");
             throw new InvalidIdException("Пользователь с id " + userId + " не найден");
         } else {
@@ -60,13 +60,13 @@ public class FilmService {
         }
     }
 
-    public Film deleteLike (Long filmId, Long userId) {
-        if (filmStorage.findById(filmId).isPresent() && userStorage.findById(userId).isPresent()){
+    public Film deleteLike(Long filmId, Long userId) {
+        if (filmStorage.findById(filmId).isPresent() && userStorage.findById(userId).isPresent()) {
             Film film = filmStorage.findById(filmId).get();
             film.getLikes().remove(userId);
             log.debug("Пользователь с id " + userId + " удалил лайк фильму с id " + filmId);
             return film;
-        } else if (filmStorage.findById(filmId).isPresent()){
+        } else if (filmStorage.findById(filmId).isPresent()) {
             log.warn("Пользователь с id " + userId + " не найден");
             throw new InvalidIdException("Пользователь с id " + userId + " не найден");
         } else {
@@ -75,7 +75,7 @@ public class FilmService {
         }
     }
 
-    public List<Film> findMostPopularFilms(Integer count){
+    public List<Film> findMostPopularFilms(Integer count) {
         return filmStorage.findAll().stream()
                 .sorted((p0, p1) -> (p1.getLikes().size() - p0.getLikes().size()))
                 .limit(count)

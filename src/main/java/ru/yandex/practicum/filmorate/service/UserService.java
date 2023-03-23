@@ -44,8 +44,8 @@ public class UserService {
         }
     }
 
-    public User addFriend (long userId, long friendId) {
-        if (storage.findById(userId).isPresent() && storage.findById(friendId).isPresent()){
+    public User addFriend(long userId, long friendId) {
+        if (storage.findById(userId).isPresent() && storage.findById(friendId).isPresent()) {
             User user = storage.findById(userId).get();
             User friend = storage.findById(friendId).get();
             user.getFriends().add(friendId);
@@ -61,8 +61,8 @@ public class UserService {
         }
     }
 
-    public User deleteFriend (long userId, long friendId) {
-        if (storage.findById(userId).isPresent() && storage.findById(friendId).isPresent()){
+    public User deleteFriend(long userId, long friendId) {
+        if (storage.findById(userId).isPresent() && storage.findById(friendId).isPresent()) {
             User user = storage.findById(userId).get();
             User friend = storage.findById(friendId).get();
             user.getFriends().remove(friendId);
@@ -80,8 +80,8 @@ public class UserService {
 
     public List<User> getFriends(long userId) {
         if (storage.findById(userId).isPresent()) {
-            Set <Long> userFriendsId = storage.findById(userId).get().getFriends();
-            List<User>friends = new ArrayList<>();
+            Set<Long> userFriendsId = storage.findById(userId).get().getFriends();
+            List<User> friends = new ArrayList<>();
             for (Long id : userFriendsId) {
                 User friend = storage.findById(id).get();
                 friends.add(friend);
@@ -102,7 +102,7 @@ public class UserService {
                     .filter(otherUser.getFriends()::contains)
                     .collect(Collectors.toList());
 
-            List<User>commonFriends = new ArrayList<>();
+            List<User> commonFriends = new ArrayList<>();
             for (Long id : userFriends) {
                 User friend = storage.findById(id).get();
                 commonFriends.add(friend);
