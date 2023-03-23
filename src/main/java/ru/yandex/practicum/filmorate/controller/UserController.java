@@ -52,6 +52,7 @@ public class UserController {
 
     @GetMapping("/{id}/friends")
     public List<User> findUserFriends(@PathVariable Long id){
+        System.out.println(service.getFriends(id));
         return service.getFriends(id);
     }
 

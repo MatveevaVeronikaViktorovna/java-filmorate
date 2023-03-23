@@ -35,6 +35,9 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     public Optional<User> findById(Long userId) {
+        if (!users.containsKey(userId)) {
+            throw new InvalidIdException("Пользователь с id " + userId + " не найден");
+        }
         return Optional.of(users.get(userId));
     }
 

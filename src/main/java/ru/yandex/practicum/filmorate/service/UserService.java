@@ -76,6 +76,7 @@ public class UserService {
                 User friend = storage.findById(id).get();
                 friends.add(friend);
             }
+            System.out.println(friends);
             return friends;
         } else {
             throw new InvalidIdException("Неверный идентификатор");

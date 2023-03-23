@@ -44,6 +44,9 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     public Optional<Film> findById(Long filmId) {
+        if (!films.containsKey(filmId)){
+            throw new InvalidIdException("Фильм с id " + filmId + " не найден");
+        }
         return Optional.of(films.get(filmId));
     }
 
