@@ -38,7 +38,7 @@ public class UserService {
         if (storage.findById(userId).isPresent()) {
             return storage.findById(userId).get();
         } else {
-            throw new InvalidIdException("Неверный идентификатор");
+            throw new InvalidIdException("Пользователь с id " + userId + " не найден");
         }
     }
 
