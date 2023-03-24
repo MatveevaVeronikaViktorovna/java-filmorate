@@ -13,6 +13,7 @@ import java.util.Set;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class User {
 
+    @NonNull
     long id;
     final String email;
     final String login;
