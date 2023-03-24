@@ -13,7 +13,6 @@ import java.util.Set;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Film {
 
-    @NonNull
     long id;
     final String name;
     final String description;
