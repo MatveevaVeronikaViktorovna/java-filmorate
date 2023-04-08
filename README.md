@@ -13,7 +13,13 @@ SELECT *
 FROM film 
 WHERE film_id = 1; -- Получение фильма с id = 1
 
-
+SELECT *
+FROM film
+WHERE film_id IN (SELECT film_id
+                  FROM like
+                  GROUP BY film_id
+                  ORDER BY COUNT(user_id) DESC
+                  LIMIT 10); -- Получение топ-10 наиболее популярных фильмов
 
 SELECT * 
 FROM user; -- Получение всех пользователей
