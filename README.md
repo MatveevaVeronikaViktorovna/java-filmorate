@@ -22,7 +22,8 @@ SELECT f.film_id,
 FROM film AS f
 FULL OUTER JOIN like AS l ON f.film_id = l.film_id
 GROUP BY f.film_id
-ORDER BY COUNT(l.user_id) DESC; -- Получение топ-10 наиболее популярных фильмов
+ORDER BY COUNT(l.user_id) DESC
+LIMIT 10; -- Получение топ-10 наиболее популярных фильмов
 
 SELECT * 
 FROM user; -- Получение всех пользователей
