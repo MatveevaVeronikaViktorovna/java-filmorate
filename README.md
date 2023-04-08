@@ -12,4 +12,13 @@ FROM film; -- Получение всех фильмов
 SELECT * 
 FROM film 
 WHERE film_id = 1; -- Получение фильма с id = 1
+
+
+
+SELECT * 
+FROM user; -- Получение всех пользователей
+
+SELECT * 
+FROM user
+WHERE user_id = 1; -- Получение пользователя с id = 1
 ```
