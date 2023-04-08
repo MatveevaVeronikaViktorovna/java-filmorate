@@ -27,4 +27,16 @@ FROM user; -- Получение всех пользователей
 SELECT * 
 FROM user
 WHERE user_id = 1; -- Получение пользователя с id = 1
+
+SELECT *
+FROM user
+WHERE user_id IN  (SELECT friend_id
+                  FROM friendship
+                  WHERE user_id = 1
+                  AND is_confirmed = true
+                  UNION
+                  SELECT user_id
+                  FROM friendship
+                  WHERE friend_id = 1); -- Получение списка друзей пользователя с id = 1
+
 ```
