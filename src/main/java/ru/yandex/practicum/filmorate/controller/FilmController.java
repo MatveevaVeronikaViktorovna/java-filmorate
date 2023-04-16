@@ -17,6 +17,11 @@ public class FilmController {
         this.service = service;
     }
 
+    @GetMapping("/{id}")
+    public Film findFilm(@PathVariable Long id) {
+        return service.findById(id);
+    }
+
     @GetMapping
     public List<Film> findAll() {
         return service.findAll();
@@ -30,11 +35,6 @@ public class FilmController {
     @PutMapping
     public Film update(@RequestBody Film film) {
         return service.update(film);
-    }
-
-    @GetMapping("/{id}")
-    public Film findFilm(@PathVariable Long id) {
-        return service.findById(id);
     }
 
     @PutMapping("/{id}/like/{userId}")

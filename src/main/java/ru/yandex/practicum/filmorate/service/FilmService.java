@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.InvalidIdException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -19,21 +20,10 @@ public class FilmService {
     private final UserStorage userStorage;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
+
+    public FilmService(@Qualifier("filmDbStorage")FilmStorage filmStorage, @Qualifier("userDbStorage") UserStorage userStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
-    }
-
-    public List<Film> findAll() {
-        return filmStorage.findAll();
-    }
-
-    public Film create(Film film) {
-        return filmStorage.create(film);
-    }
-
-    public Film update(Film film) {
-        return filmStorage.update(film);
     }
 
     public Film findById(Long filmId) {
@@ -43,6 +33,19 @@ public class FilmService {
             log.warn("Фильм с id " + filmId + " не найден");
             throw new InvalidIdException("Фильм с id " + filmId + " не найден");
         }
+    }
+
+    public List<Film> findAll() {
+        System.out.println("вызываю метод найти всех" + filmStorage.findAll());
+        return filmStorage.findAll();
+    }
+
+    public Film create(Film film) {
+        return filmStorage.create(film);
+    }
+
+    public Film update(Film film) {
+        return filmStorage.update(film);
     }
 
     public Film addLike(Long filmId, Long userId) {

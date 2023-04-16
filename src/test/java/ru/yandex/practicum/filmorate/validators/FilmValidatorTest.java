@@ -17,7 +17,7 @@ class FilmValidatorTest {
         Film correctFilm = new Film("Titanic",
                 "American epic romance and disaster film directed, written, produced, and co-edited by " +
                         "James Cameron. Incorporating both historical and fictionalized aspects",
-                LocalDate.of(1997, 11, 1), 194);
+                LocalDate.of(1997, 11, 1), 194, 1);
         boolean isValid = validator.isValidName(correctFilm.getName());
 
         assertTrue(isValid);
@@ -28,7 +28,7 @@ class FilmValidatorTest {
         Film incorrectFilm = new Film(" ",
                 "American epic romance and disaster film directed, written, produced, and co-edited by " +
                         "James Cameron. Incorporating both historical and fictionalized aspects",
-                LocalDate.of(1997, 11, 1), 194);
+                LocalDate.of(1997, 11, 1), 194, 1);
 
         final ValidationException exception = assertThrows(
                 ValidationException.class,
@@ -43,7 +43,7 @@ class FilmValidatorTest {
                 "Titanic is a 1997 American epic romance and disaster film directed, written, produced, " +
                         "and co-edited by James Cameron. Incorporating both historical and fictionalized aspects, " +
                         "it is based on accounts.",
-                LocalDate.of(1997, 11, 1), 194);
+                LocalDate.of(1997, 11, 1), 194, 1);
         boolean isValid = validator.isValidDescription(correctFilm.getDescription());
 
         assertTrue(isValid);
@@ -55,7 +55,7 @@ class FilmValidatorTest {
                 "Titanic is a 1997 American epic romance and disaster film directed, written, produced, " +
                         "and co-edited by James Cameron. Incorporating both historical and fictionalized aspects, " +
                         "it is based on accounts o",
-                LocalDate.of(1997, 11, 1), 194);
+                LocalDate.of(1997, 11, 1), 194, 1);
 
         final ValidationException exception = assertThrows(
                 ValidationException.class,
@@ -69,7 +69,7 @@ class FilmValidatorTest {
         Film correctFilm = new Film("Titanic",
                 "American epic romance and disaster film directed, written, produced, and co-edited by " +
                         "James Cameron. Incorporating both historical and fictionalized aspects",
-                LocalDate.of(1895, 12, 29), 194);
+                LocalDate.of(1895, 12, 29), 194, 1);
         boolean isValid = validator.isValidReleaseDate(correctFilm.getReleaseDate());
 
         assertTrue(isValid);
@@ -82,7 +82,7 @@ class FilmValidatorTest {
                 "Titanic is a 1997 American epic romance and disaster film directed, written, produced, " +
                         "and co-edited by James Cameron. Incorporating both historical and fictionalized aspects, " +
                         "it is based on accounts o",
-                LocalDate.of(1895, 12, 27), 194);
+                LocalDate.of(1895, 12, 27), 194, 1);
 
         final ValidationException exception = assertThrows(
                 ValidationException.class,
@@ -96,7 +96,7 @@ class FilmValidatorTest {
         Film correctFilm = new Film("Titanic",
                 "American epic romance and disaster film directed, written, produced, and co-edited by " +
                         "James Cameron. Incorporating both historical and fictionalized aspects",
-                LocalDate.of(1895, 12, 29), 0);
+                LocalDate.of(1895, 12, 29), 0, 1);
         boolean isValid = validator.isValidDuration(correctFilm.getDuration());
 
         assertTrue(isValid);
@@ -108,7 +108,7 @@ class FilmValidatorTest {
                 "Titanic is a 1997 American epic romance and disaster film directed, written, produced, " +
                         "and co-edited by James Cameron. Incorporating both historical and fictionalized aspects, " +
                         "it is based on accounts o",
-                LocalDate.of(1895, 12, 27), -1);
+                LocalDate.of(1895, 12, 27), -1, 1);
 
         final ValidationException exception = assertThrows(
                 ValidationException.class,
@@ -122,7 +122,7 @@ class FilmValidatorTest {
         Film correctFilm = new Film("Titanic",
                 "American epic romance and disaster film directed, written, produced, and co-edited by " +
                         "James Cameron. Incorporating both historical and fictionalized aspects",
-                LocalDate.of(1895, 12, 29), 0);
+                LocalDate.of(1895, 12, 29), 0, 1);
         boolean isValid = validator.isValid(correctFilm);
 
         assertTrue(isValid);
