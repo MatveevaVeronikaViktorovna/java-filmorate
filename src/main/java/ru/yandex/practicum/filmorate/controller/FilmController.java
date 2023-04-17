@@ -34,7 +34,6 @@ public class FilmController {
 
     @PutMapping
     public Film update(@RequestBody Film film) {
-        System.out.println("запрос1");
         return service.update(film);
     }
 

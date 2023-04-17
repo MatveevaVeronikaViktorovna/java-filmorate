@@ -18,6 +18,11 @@ public class UserController {
         this.service = service;
     }
 
+    @GetMapping("/{id}")
+    public User findById(@PathVariable Long id) {
+        return service.findById(id);
+    }
+
     @GetMapping
     public List<User> findAll() {
         return service.findAll();
@@ -33,10 +38,7 @@ public class UserController {
         return service.update(user);
     }
 
-    @GetMapping("/{id}")
-    public User findById(@PathVariable Long id) {
-        return service.findById(id);
-    }
+
 
     @PutMapping("/{id}/friends/{friendId}")
     public User addFriend(@PathVariable Long id,

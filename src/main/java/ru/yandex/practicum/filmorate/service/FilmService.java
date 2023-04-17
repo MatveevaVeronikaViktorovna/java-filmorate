@@ -44,9 +44,11 @@ public class FilmService {
     }
 
     public Film update(Film film) {
-        System.out.println("запрос2");
         return filmStorage.update(film);
     }
+
+
+
 
     public Film addLike(Long filmId, Long userId) {
         if (filmStorage.findById(filmId).isPresent() && userStorage.findById(userId).isPresent()) {

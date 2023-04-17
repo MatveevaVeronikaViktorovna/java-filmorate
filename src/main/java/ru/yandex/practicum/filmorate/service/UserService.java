@@ -24,6 +24,15 @@ public class UserService {
         this.storage = storage;
     }
 
+    public User findById(Long userId) {
+        if (storage.findById(userId).isPresent()) {
+            return storage.findById(userId).get();
+        } else {
+            log.warn("Пользователь с id " + userId + " не найден");
+            throw new InvalidIdException("Пользователь с id " + userId + " не найден");
+        }
+    }
+
     public List<User> findAll() {
         return storage.findAll();
     }
@@ -36,14 +45,7 @@ public class UserService {
         return storage.update(user);
     }
 
-    public User findById(Long userId) {
-        if (storage.findById(userId).isPresent()) {
-            return storage.findById(userId).get();
-        } else {
-            log.warn("Пользователь с id " + userId + " не найден");
-            throw new InvalidIdException("Пользователь с id " + userId + " не найден");
-        }
-    }
+
 
     public User addFriend(long userId, long friendId) {
         if (storage.findById(userId).isPresent() && storage.findById(friendId).isPresent()) {

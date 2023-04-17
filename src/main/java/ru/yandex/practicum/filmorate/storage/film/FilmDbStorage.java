@@ -58,7 +58,7 @@ public class FilmDbStorage implements FilmStorage {
             final Set<Long> likes = new HashSet<>();
             return Optional.of(film);
         } else {
-            log.info("Пользователь с идентификатором {} не найден.", filmId);
+            log.info("Фильм с идентификатором {} не найден.", filmId);
             return Optional.empty();
         }
     }
@@ -94,7 +94,7 @@ public class FilmDbStorage implements FilmStorage {
             log.warn("Валидация не пройдена");
             throw new ValidationException("Валидация не пройдена");
         }
-        
+
         String sql = "insert into films (name, description, release_date, duration, mpa_id) values (?, ?, ?, ?, ?)";
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -108,7 +108,6 @@ public class FilmDbStorage implements FilmStorage {
             return stmt;
         }, keyHolder);
         long filmId = keyHolder.getKey().longValue();
-        film.setId(filmId);
 
         if(film.getGenres().size() > 0) {
             String sqlForGenres = "insert into film_genre (film_id, genre_id) values (?, ?)";
@@ -118,12 +117,11 @@ public class FilmDbStorage implements FilmStorage {
                         genre.getId());
             }
         }
-        return film;
+        return findById(filmId).get();
     }
 
     @Override
     public Film update(Film film) {
-        System.out.println("запрос3");
         String sql = "update films set name = ?, description = ?, release_date = ?, duration = ?, mpa_id = ? " +
                 "where film_id = ?";
         jdbcTemplate.update(sql,
