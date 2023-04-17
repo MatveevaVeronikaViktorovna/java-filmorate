@@ -12,9 +12,8 @@ public class FilmValidator implements Validator<Film> {
 
     @Override
     public boolean isValid(Film film) {
-  //      return isValidName(film.getName()) && isValidDescription(film.getDescription()) &&
-  //              isValidReleaseDate(film.getReleaseDate()) && isValidDuration(film.getDuration());
-    return true;
+        return isValidName(film.getName()) && isValidDescription(film.getDescription()) &&
+                isValidReleaseDate(film.getReleaseDate()) && isValidDuration(film.getDuration());
     }
 
     public boolean isValidName(String name) {

@@ -7,6 +7,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -85,6 +86,15 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film create(Film film) {
+        if (film == null) {
+            log.warn("Валидация не пройдена: не заполнены поля фильма");
+            throw new ValidationException("Валидация не пройдена: не заполнены поля фильма");
+        }
+        if (!validator.isValid(film)) {
+            log.warn("Валидация не пройдена");
+            throw new ValidationException("Валидация не пройдена");
+        }
+        
         String sql = "insert into films (name, description, release_date, duration, mpa_id) values (?, ?, ?, ?, ?)";
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
