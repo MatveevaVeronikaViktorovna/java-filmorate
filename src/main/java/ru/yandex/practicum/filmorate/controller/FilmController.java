@@ -32,13 +32,13 @@ public class FilmController {
         return service.create(film);
     }
 
-
-
-
     @PutMapping
     public Film update(@RequestBody Film film) {
+        System.out.println("запрос1");
         return service.update(film);
     }
+
+
 
     @PutMapping("/{id}/like/{userId}")
     public Film addLike(@PathVariable Long id,

@@ -43,10 +43,8 @@ public class FilmService {
         return filmStorage.create(film);
     }
 
-
-
-
     public Film update(Film film) {
+        System.out.println("запрос2");
         return filmStorage.update(film);
     }
 
