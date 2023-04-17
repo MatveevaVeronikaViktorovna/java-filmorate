@@ -3,6 +3,8 @@ package ru.yandex.practicum.filmorate.storage.film;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -12,6 +14,7 @@ import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
 import ru.yandex.practicum.filmorate.storage.mpa.MpaDbStorage;
 import ru.yandex.practicum.filmorate.validators.FilmValidator;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -61,11 +64,37 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film create(Film film) {
-        return null;
+        System.out.println("пришел запрос в хранилище");
+        String sql = "insert into films (name, description, release_date, duration, mpa_id) values (?, ?, ?, ?, ?)";
+
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement stmt = connection.prepareStatement(sql, new String[]{"film_id"});
+            stmt.setString(1, film.getName());
+            stmt.setString(2, film.getDescription());
+            stmt.setDate(3, java.sql.Date.valueOf(film.getReleaseDate()));
+            stmt.setInt(4, film.getDuration());
+            stmt.setInt(5, film.getMpa().getId());
+            return stmt;
+        }, keyHolder);
+        long filmId = keyHolder.getKey().longValue();
+        film.setId(filmId);
+
+        if(film.getGenres().size() > 0) {
+            String sqlForGenres = "insert into film_genre (film_id, genre_id) values (?, ?)";
+            for (Genre genre : film.getGenres()) {
+                jdbcTemplate.update(sqlForGenres,
+                        filmId,
+                        genre.getId());
+            }
+        }
+        return film;
     }
+
 
     @Override
     public List<Film> findAll() {
+        System.out.println("пришел запрос на все фильмы3");
         String sql = "select * from films";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs));
     }

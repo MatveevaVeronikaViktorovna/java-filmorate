@@ -24,13 +24,18 @@ public class FilmController {
 
     @GetMapping
     public List<Film> findAll() {
+        System.out.println("пришел запрос на все фильмы");
         return service.findAll();
     }
 
     @PostMapping
     public Film create(@RequestBody Film film) {
+        System.out.println("пришел запрос на создание нового фильма в контроллере");
         return service.create(film);
     }
+
+
+
 
     @PutMapping
     public Film update(@RequestBody Film film) {

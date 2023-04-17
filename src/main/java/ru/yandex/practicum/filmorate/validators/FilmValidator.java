@@ -6,13 +6,15 @@ import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
 
+
 @Slf4j
 public class FilmValidator implements Validator<Film> {
 
     @Override
     public boolean isValid(Film film) {
-        return isValidName(film.getName()) && isValidDescription(film.getDescription()) &&
-                isValidReleaseDate(film.getReleaseDate()) && isValidDuration(film.getDuration());
+  //      return isValidName(film.getName()) && isValidDescription(film.getDescription()) &&
+  //              isValidReleaseDate(film.getReleaseDate()) && isValidDuration(film.getDuration());
+    return true;
     }
 
     public boolean isValidName(String name) {

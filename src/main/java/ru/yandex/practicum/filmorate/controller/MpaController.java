@@ -1,10 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.service.MpaService;
 
@@ -29,6 +26,12 @@ public class MpaController {
     @GetMapping
     public Collection<Mpa> findAll() {
         return mpaService.findAll();
+    }
+
+    @PostMapping
+    public Mpa create(@RequestBody Mpa mpa){
+        System.out.println("в контроллере запрос на создание мра");
+       return mpaService.create(mpa);
     }
 
 }

@@ -7,6 +7,6 @@ import lombok.experimental.FieldDefaults;
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Mpa {
-    final int id;
-    final String name;
+    int id;
+    String name;
 }
