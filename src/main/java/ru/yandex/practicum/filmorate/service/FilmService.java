@@ -36,13 +36,10 @@ public class FilmService {
     }
 
     public List<Film> findAll() {
-        System.out.println("пришел запрос на все фильмы2");
         return filmStorage.findAll();
     }
 
     public Film create(Film film) {
-        log.debug("Received a request to create a movie.");
-        System.out.println("пришел запрос в сервисе");
         return filmStorage.create(film);
     }
 

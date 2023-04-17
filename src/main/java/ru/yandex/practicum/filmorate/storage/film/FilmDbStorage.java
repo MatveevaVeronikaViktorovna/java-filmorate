@@ -63,8 +63,29 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    public List<Film> findAll() {
+        System.out.println("пришел запрос на все фильмы3");
+        String sql = "select * from films";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs));
+    }
+
+    private Film makeFilm(ResultSet rs) throws SQLException {
+        long id = rs.getLong("film_id");
+        String name = rs.getString("name");
+        String description = rs.getString("description");
+        LocalDate releaseDate = rs.getDate("release_date").toLocalDate();
+        int duration = rs.getInt("duration");
+        Mpa mpa = mpaDbStorage.findById(rs.getInt("mpa_id")).get();
+        Film film = new Film(id, name, description, releaseDate, duration, mpa);
+        final Set<Genre> genres = new HashSet<>();
+        genres.addAll(genreDbStorage.findByFilmId(id));
+        film.setGenres(genres);
+        final Set<Long> likes = new HashSet<>();
+        return film;
+    }
+
+    @Override
     public Film create(Film film) {
-        System.out.println("пришел запрос в хранилище");
         String sql = "insert into films (name, description, release_date, duration, mpa_id) values (?, ?, ?, ?, ?)";
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -92,28 +113,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
 
-    @Override
-    public List<Film> findAll() {
-        System.out.println("пришел запрос на все фильмы3");
-        String sql = "select * from films";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs));
-    }
-
-    private Film makeFilm(ResultSet rs) throws SQLException {
-        long id = rs.getLong("film_id");
-        String name = rs.getString("name");
-        String description = rs.getString("description");
-        LocalDate releaseDate = rs.getDate("release_date").toLocalDate();
-        int duration = rs.getInt("duration");
-        Mpa mpa = mpaDbStorage.findById(rs.getInt("mpa_id")).get();
-        Film film = new Film(id, name, description, releaseDate, duration, mpa);
-        final Set<Genre> genres = new HashSet<>();
-        genres.addAll(genreDbStorage.findByFilmId(id));
-        film.setGenres(genres);
-        final Set<Long> likes = new HashSet<>();
-        return film;
-    }
-
+    
     @Override
     public Film update(Film film) {
         return null;

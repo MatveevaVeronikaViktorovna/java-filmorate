@@ -3,13 +3,10 @@ package ru.yandex.practicum.filmorate.storage.mpa;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
@@ -51,21 +48,6 @@ public class MpaDbStorage {
         Mpa mpa = new Mpa();
         mpa.setId(id);
         mpa.setName(name);
-        return mpa;
-    }
-
-    public Mpa create(Mpa mpa) {
-        System.out.println("пришел запрос создать mpa");
-        String sql = "insert into mpa (name) values (?)";
-
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(connection -> {
-            PreparedStatement stmt = connection.prepareStatement(sql, new String[]{"mpa_id"});
-            stmt.setString(1, mpa.getName());
-            return stmt;
-        }, keyHolder);
-        int mpaId = keyHolder.getKey().intValue();
-        mpa.setId(mpaId);
         return mpa;
     }
 

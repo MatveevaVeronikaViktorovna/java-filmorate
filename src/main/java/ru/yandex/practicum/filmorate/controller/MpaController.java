@@ -28,10 +28,4 @@ public class MpaController {
         return mpaService.findAll();
     }
 
-    @PostMapping
-    public Mpa create(@RequestBody Mpa mpa){
-        System.out.println("в контроллере запрос на создание мра");
-       return mpaService.create(mpa);
-    }
-
 }

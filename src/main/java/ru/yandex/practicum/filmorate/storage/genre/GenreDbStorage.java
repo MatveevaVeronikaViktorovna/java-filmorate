@@ -28,9 +28,9 @@ public class GenreDbStorage {
         SqlRowSet genreRows = jdbcTemplate.queryForRowSet("select * from genres where genre_id = ?", id);
         if(genreRows.next()) {
             log.info("Найден жанр: {} {}", genreRows.getString("genre_id"), genreRows.getString("name"));
-            Genre genre = new Genre(
-                    genreRows.getInt("genre_id"),
-                    genreRows.getString("name"));
+            Genre genre = new Genre();
+            genre.setId(genreRows.getInt("genre_id"));
+            genre.setName(genreRows.getString("name"));
             return Optional.of(genre);
         } else {
             log.info("Жанр с идентификатором {} не найден.", id);
@@ -51,10 +51,11 @@ public class GenreDbStorage {
     private Genre makeGenre(ResultSet rs) throws SQLException {
         int id = rs.getInt("genre_id");
         String name = rs.getString("name");
-
-        return new Genre(id, name);
+        Genre genre = new Genre();
+        genre.setId(id);
+        genre.setName(name);
+        return genre;
     }
-
 
 }
 

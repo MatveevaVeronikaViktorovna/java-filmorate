@@ -31,9 +31,4 @@ public class MpaService {
         return mpaDbStorage.findAll();
     }
 
-    public Mpa create(Mpa mpa) {
-        System.out.println("пришел запрос в сервисе на мра");
-        return mpaDbStorage.create(mpa);
-    }
-
 }
