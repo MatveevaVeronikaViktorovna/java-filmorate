@@ -52,10 +52,10 @@ public class FilmDbStorage implements FilmStorage {
             int duration = filmRows.getInt("duration");
             Mpa mpa = mpaDbStorage.findById(filmRows.getInt("mpa_id")).get();
             Film film = new Film(id, name, description, releaseDate, duration, mpa);
-            final Set<Genre> genres = new HashSet<>();
-            genres.addAll(genreDbStorage.findByFilmId(id));
+            final Set<Genre> genres = new HashSet<>(genreDbStorage.findByFilmId(id));
             film.setGenres(genres);
-            final Set<Long> likes = new HashSet<>();
+            final Set<Long> likes = new HashSet<>(findLikesByFilmId(id));
+            film.setLikes(likes);
             return Optional.of(film);
         } else {
             log.info("Фильм с идентификатором {} не найден.", filmId);
@@ -70,6 +70,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private Film makeFilm(ResultSet rs) throws SQLException {
+        System.out.println("сюда дошел запрос");
         long id = rs.getLong("film_id");
         String name = rs.getString("name");
         String description = rs.getString("description");
@@ -77,10 +78,10 @@ public class FilmDbStorage implements FilmStorage {
         int duration = rs.getInt("duration");
         Mpa mpa = mpaDbStorage.findById(rs.getInt("mpa_id")).get();
         Film film = new Film(id, name, description, releaseDate, duration, mpa);
-        final Set<Genre> genres = new HashSet<>();
-        genres.addAll(genreDbStorage.findByFilmId(id));
+        final Set<Genre> genres = new HashSet<>(genreDbStorage.findByFilmId(id));
         film.setGenres(genres);
-        final Set<Long> likes = new HashSet<>();
+        final Set<Long> likes = new HashSet<>(findLikesByFilmId(id));
+        film.setLikes(likes);
         return film;
     }
 
@@ -145,5 +146,35 @@ public class FilmDbStorage implements FilmStorage {
         }
         return findById(film.getId()).get();
         }
+
+    @Override
+    public Film addLike(long filmId, long userId) {
+        String sql = "insert into likes(film_id, user_id) values (?, ?)";
+        jdbcTemplate.update(sql,
+                filmId,
+                userId);
+        return findById(filmId).get();
+    }
+
+    @Override
+    public Film deleteLike(Long filmId, Long userId) {
+        String sqlQuery = "delete from likes where film_id = ? and user_id = ?";
+        jdbcTemplate.update(sqlQuery, filmId, userId);
+        return findById(filmId).get();
+    }
+
+    @Override
+    public List<Film> findMostPopularFilms(Integer count) {
+        String sql = "select f.film_id, f.name, f.description, f.release_date, f.duration, f.mpa_id " +
+                "from films as f left outer join likes as l on f.film_id = l.film_id " +
+                "group by f.film_id order by count(l.user_id) desc " +
+                "limit ?";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), count);
+    }
+
+    public Collection<Long> findLikesByFilmId(long filmId) {
+        String sql = "select user_id from likes where film_id = ?";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> rs.getLong("user_id"), filmId);
+    }
 
 }
