@@ -26,8 +26,9 @@ public class GenreDbStorage {
 
     public Optional<Genre> findById(Integer id) {
         SqlRowSet genreRows = jdbcTemplate.queryForRowSet("select * from genres where genre_id = ?", id);
-        if(genreRows.next()) {
-            log.info("Найден жанр: {} {}", genreRows.getString("genre_id"), genreRows.getString("name"));
+        if (genreRows.next()) {
+            log.info("Найден жанр: {} {}", genreRows.getString("genre_id"),
+                    genreRows.getString("name"));
             Genre genre = new Genre();
             genre.setId(genreRows.getInt("genre_id"));
             genre.setName(genreRows.getString("name"));

@@ -43,7 +43,8 @@ public class FilmDbStorage implements FilmStorage {
     public Optional<Film> findById(Long filmId) {
         SqlRowSet filmRows = jdbcTemplate.queryForRowSet("select * from films where film_id = ?", filmId);
         if (filmRows.next()) {
-            log.info("Найден фильм: {} {}", filmRows.getString("film_id"), filmRows.getString("name"));
+            log.info("Найден фильм: {} {}", filmRows.getString("film_id"),
+                    filmRows.getString("name"));
             long id = filmRows.getLong("film_id");
             String name = filmRows.getString("name");
             String description = filmRows.getString("description");
@@ -94,9 +95,7 @@ public class FilmDbStorage implements FilmStorage {
             log.warn("Валидация не пройдена");
             throw new ValidationException("Валидация не пройдена");
         }
-
         String sql = "insert into films (name, description, release_date, duration, mpa_id) values (?, ?, ?, ?, ?)";
-
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             PreparedStatement stmt = connection.prepareStatement(sql, new String[]{"film_id"});
@@ -108,8 +107,7 @@ public class FilmDbStorage implements FilmStorage {
             return stmt;
         }, keyHolder);
         long filmId = keyHolder.getKey().longValue();
-
-        if(film.getGenres().size() > 0) {
+        if (film.getGenres().size() > 0) {
             String sqlForGenres = "insert into film_genre (film_id, genre_id) values (?, ?)";
             for (Genre genre : film.getGenres()) {
                 jdbcTemplate.update(sqlForGenres,
@@ -136,10 +134,8 @@ public class FilmDbStorage implements FilmStorage {
                     film.getDuration(),
                     film.getMpa().getId(),
                     film.getId());
-
             String sqlForDeleteGenres = "delete from film_genre where film_id = ?";
             jdbcTemplate.update(sqlForDeleteGenres, film.getId());
-
             if (film.getGenres().size() > 0) {
                 String sqlForGenres = "insert into film_genre (film_id, genre_id) values (?, ?)";
                 for (Genre genre : film.getGenres()) {

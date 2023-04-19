@@ -23,9 +23,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UserDbStorage implements UserStorage {
 
-    private final Map<Long, User> users = new HashMap<>();
     private final UserValidator validator = new UserValidator();
-    private long newId;
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
@@ -37,7 +35,8 @@ public class UserDbStorage implements UserStorage {
     public Optional<User> findById(Long userId) {
         SqlRowSet userRows = jdbcTemplate.queryForRowSet("select * from users where user_id = ?", userId);
         if (userRows.next()) {
-            log.info("Найден пользователь: {} {}", userRows.getString("user_id"), userRows.getString("name"));
+            log.info("Найден пользователь: {} {}", userRows.getString("user_id"),
+                    userRows.getString("name"));
             long id = userRows.getLong("user_id");
             String email = userRows.getString("email");
             String login = userRows.getString("login");
@@ -65,7 +64,7 @@ public class UserDbStorage implements UserStorage {
         String login = rs.getString("login");
         String name = rs.getString("name");
         LocalDate birthday = rs.getDate("birthday").toLocalDate();
-        User user = new User(id,email,login,name,birthday);
+        User user = new User(id, email, login, name, birthday);
         Set<Long> friends = new HashSet<>(findFriendsByUserId(id));
         user.setFriends(friends);
         return user;
@@ -147,7 +146,7 @@ public class UserDbStorage implements UserStorage {
     @Override
     public User deleteFriend(long requestFrom, long requestTo) {
         if (findById(requestFrom).get().getFriends().contains(requestTo)) {
-            if (findById(requestTo).get().getFriends().contains(requestFrom)) { // проверка на взаимность
+            if (findById(requestTo).get().getFriends().contains(requestFrom)) {
                 String sql1 = "delete from friendship where request_from = ? and request_to = ?";
                 jdbcTemplate.update(sql1, requestFrom, requestTo);
                 String sql2 = "delete from friendship where request_from = ? and request_to = ?";
@@ -164,7 +163,7 @@ public class UserDbStorage implements UserStorage {
             }
             return findById(requestFrom).get();
         } else {
-            throw new InvalidIdException("Пользователь с id " + requestTo+ " не является другом пользователю с id "
+            throw new InvalidIdException("Пользователь с id " + requestTo + " не является другом пользователю с id "
                     + requestFrom);
         }
     }
@@ -183,7 +182,6 @@ public class UserDbStorage implements UserStorage {
             userFriends = userFriends.stream()
                     .filter(findFriendsByUserId(otherUserId)::contains)
                     .collect(Collectors.toList());
-
             List<User> commonFriends = new ArrayList<>();
             for (Long id : userFriends) {
                 User friend = findById(id).get();

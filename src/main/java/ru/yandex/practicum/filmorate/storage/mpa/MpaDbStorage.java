@@ -25,7 +25,7 @@ public class MpaDbStorage {
 
     public Optional<Mpa> findById(Integer id) {
         SqlRowSet mpaRows = jdbcTemplate.queryForRowSet("select * from mpa where mpa_id = ?", id);
-        if(mpaRows.next()) {
+        if (mpaRows.next()) {
             log.info("Найден mpa: {} {}", mpaRows.getString("mpa_id"), mpaRows.getString("name"));
             Mpa mpa = new Mpa();
             mpa.setId(mpaRows.getInt("mpa_id"));

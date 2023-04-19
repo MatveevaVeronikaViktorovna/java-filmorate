@@ -19,7 +19,7 @@ public class User {
     String login;
     String name;
     LocalDate birthday;
-    Set<Long> friends = new HashSet<>(); // оставить только айди или пусть юзеров хранит?
+    Set<Long> friends = new HashSet<>();
 
     public User(@NonNull long id, String email, String login, String name, LocalDate birthday) {
         this.id = id;
@@ -29,10 +29,4 @@ public class User {
         this.birthday = birthday;
     }
 
-    /*  public User(String email, String login, String name, LocalDate birthday) {
-        this.email = email;
-        this.login = login;
-        this.name = name;
-        this.birthday = birthday;
-    } */
 }

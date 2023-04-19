@@ -8,9 +8,7 @@ import ru.yandex.practicum.filmorate.exceptions.InvalidIdException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -19,7 +17,7 @@ public class UserService {
     private final UserStorage storage;
 
     @Autowired
-    public UserService(@Qualifier("userDbStorage")UserStorage storage) {
+    public UserService(@Qualifier("userDbStorage") UserStorage storage) {
         this.storage = storage;
     }
 
@@ -44,15 +42,13 @@ public class UserService {
         return storage.update(user);
     }
 
-    public User addFriend (long requestFrom, long requestTo) {
+    public User addFriend(long requestFrom, long requestTo) {
         return storage.addFriend(requestFrom, requestTo);
     }
 
-    public User deleteFriend (long requestFrom, long requestTo) {
+    public User deleteFriend(long requestFrom, long requestTo) {
         return storage.deleteFriend(requestFrom, requestTo);
     }
-
-
 
 
     public List<User> getFriends(long userId) {
@@ -60,27 +56,7 @@ public class UserService {
     }
 
     public List<User> getCommonFriends(long userId, long otherUserId) {
-        if (storage.findById(userId).isPresent() && storage.findById(otherUserId).isPresent()) {
-            User user = storage.findById(userId).get();
-            User otherUser = storage.findById(otherUserId).get();
-            List<Long> userFriends = new ArrayList<>(user.getFriends());
-            userFriends = userFriends.stream()
-                    .filter(otherUser.getFriends()::contains)
-                    .collect(Collectors.toList());
-
-            List<User> commonFriends = new ArrayList<>();
-            for (Long id : userFriends) {
-                User friend = storage.findById(id).get();
-                commonFriends.add(friend);
-            }
-            return commonFriends;
-        } else if (storage.findById(userId).isPresent()) {
-            log.warn("Пользователь с id " + otherUserId + " не найден");
-            throw new InvalidIdException("Пользователь с id " + otherUserId + " не найден");
-        } else {
-            log.warn("Пользователь с id " + userId + " не найден");
-            throw new InvalidIdException("Пользователь с id " + userId + " не найден");
-        }
+        return storage.getCommonFriends(userId, otherUserId);
     }
 
 }
