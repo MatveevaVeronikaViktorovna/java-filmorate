@@ -14,4 +14,10 @@ public interface UserStorage {
     User update(User user);
 
     Optional<User> findById(Long userId);
+
+    User addFriend(long requestFrom, long requestTo);
+
+    User deleteFriend(long requestFrom, long requestTo);
+
+    List<User> getFriends(long userId);
 }

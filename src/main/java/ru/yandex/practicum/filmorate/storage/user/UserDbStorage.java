@@ -7,6 +7,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exceptions.InvalidIdException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.validators.UserValidator;
@@ -42,7 +43,8 @@ public class UserDbStorage implements UserStorage {
             String name = userRows.getString("name");
             LocalDate birthday = userRows.getDate("birthday").toLocalDate();
             User user = new User(id, email, login, name, birthday);
-            Set<Long> friends = new HashSet<>();
+            Set<Long> friends = new HashSet<>(findFriendsByUserId(id));
+            user.setFriends(friends);
             return Optional.of(user);
         } else {
             log.info("Пользователь с идентификатором {} не найден.", userId);
@@ -63,7 +65,8 @@ public class UserDbStorage implements UserStorage {
         String name = rs.getString("name");
         LocalDate birthday = rs.getDate("birthday").toLocalDate();
         User user = new User(id,email,login,name,birthday);
-        Set<Long> friends = new HashSet<>();
+        Set<Long> friends = new HashSet<>(findFriendsByUserId(id));
+        user.setFriends(friends);
         return user;
     }
 
@@ -106,6 +109,66 @@ public class UserDbStorage implements UserStorage {
         return findById(user.getId()).get();
     }
 
+    @Override
+    public User addFriend(long requestFrom, long requestTo) {
+        if (findById(requestFrom).get().getFriends().contains(requestTo)) {
+            String sql = "update friendship set is_confirmed = ? where request_from = ? and request_to = ?";
+            jdbcTemplate.update(sql,
+                    true,
+                    requestTo,
+                    requestFrom);
+        } else {
+            String sql = "insert into friendship(request_from, request_to, is_confirmed) values (?, ?, ?)";
+            jdbcTemplate.update(sql,
+                    requestFrom,
+                    requestTo,
+                    false);
+        }
+        return findById(requestFrom).get();
+    }
+
+    @Override
+    public User deleteFriend(long requestFrom, long requestTo) {
+        if (findById(requestTo).get().getFriends().contains(requestFrom)) {
+            if (findById(requestFrom).get().getFriends().contains(requestTo)) { // проверка на взаимность
+                String sql1 = "delete from friendship where request_from = ? and request_to = ?";
+                jdbcTemplate.update(sql1, requestFrom, requestTo);
+                String sql2 = "delete from friendship where request_from = ? and request_to = ?";
+                jdbcTemplate.update(sql2, requestTo, requestFrom);
+
+                String sql3 = "insert into friendship(request_from, request_to, is_confirmed) values (?, ?, ?)";
+                jdbcTemplate.update(sql3,
+                        requestTo,
+                        requestFrom,
+                        false);
+            } else {
+                String sqlQuery = "delete from friendship where request_from = ? and request_to = ?";
+                jdbcTemplate.update(sqlQuery, requestFrom, requestTo);
+            }
+            return findById(requestFrom).get();
+        } else {
+            throw new InvalidIdException("Заявка в друзья от пользователя с id " + requestFrom + " к пользователю с id " + requestTo + " не найдена");
+        }
+    }
+
+    public List<User> getFriends(long userId) {
+        String sql = "SELECT * FROM users WHERE user_id IN (SELECT request_to FROM friendship WHERE request_from = ?" +
+                " AND is_confirmed = true UNION SELECT request_from FROM friendship WHERE request_to = ?)";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), userId, userId);
+    }
+
+
+
+
+
+    public Collection<Long> findFriendsByUserId(long userId) {
+        String sql = "SELECT user_id FROM users WHERE user_id IN  (SELECT request_to FROM friendship WHERE request_from = ?" +
+                " AND is_confirmed = true UNION SELECT request_from FROM friendship WHERE request_to = ?)";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> rs.getLong("user_id"), userId, userId);
+    }
+
 }
+
+
 
 

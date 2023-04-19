@@ -62,4 +62,55 @@ public class InMemoryUserStorage implements UserStorage {
         }
     }
 
+    @Override
+    public User addFriend(long requestFrom, long requestTo) {
+        if (findById(requestFrom).isPresent() && findById(requestTo).isPresent()) {
+            User user = findById(requestFrom).get();
+            User friend = findById(requestTo).get();
+            user.getFriends().add(requestTo);
+            friend.getFriends().add(requestFrom);
+            log.debug("Пользователи с id " + requestFrom + " и " + requestTo + " добавлены друг другу в друзья");
+            return user;
+        } else if (findById(requestFrom).isPresent()) {
+            log.warn("Пользователь с id " + requestTo + " не найден");
+            throw new InvalidIdException("Пользователь с id " + requestTo + " не найден");
+        } else {
+            log.warn("Пользователь с id " + requestFrom + " не найден");
+            throw new InvalidIdException("Пользователь с id " + requestTo + " не найден");
+        }
+    }
+
+    @Override
+    public User deleteFriend(long requestFrom, long requestTo) {
+        if (findById(requestFrom).isPresent() && findById(requestTo).isPresent()) {
+            User user = findById(requestFrom).get();
+            User friend = findById(requestTo).get();
+            user.getFriends().remove(requestTo);
+            friend.getFriends().remove(requestFrom);
+            log.debug("Пользователи с id " + requestFrom + " и " + requestTo + " удалены друг у друга из друзей");
+            return user;
+        } else if (findById(requestFrom).isPresent()) {
+            log.warn("Пользователь с id " + requestTo + " не найден");
+            throw new InvalidIdException("Пользователь с id " + requestTo + " не найден");
+        } else {
+            log.warn("Пользователь с id " + requestFrom + " не найден");
+            throw new InvalidIdException("Пользователь с id " + requestFrom + " не найден");
+        }
+    }
+
+    public List<User> getFriends(long userId) {
+        if (findById(userId).isPresent()) {
+            Set<Long> userFriendsId = findById(userId).get().getFriends();
+            List<User> friends = new ArrayList<>();
+            for (Long id : userFriendsId) {
+                User friend = findById(id).get();
+                friends.add(friend);
+            }
+            return friends;
+        } else {
+            log.warn("Пользователь с id " + userId + " не найден");
+            throw new InvalidIdException("Пользователь с id " + userId + " не найден");
+        }
+    }
+
 }
