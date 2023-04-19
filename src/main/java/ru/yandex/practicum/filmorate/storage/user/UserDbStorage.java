@@ -17,6 +17,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component("userDbStorage")
 @Slf4j
@@ -151,15 +152,35 @@ public class UserDbStorage implements UserStorage {
         }
     }
 
+    @Override
     public List<User> getFriends(long userId) {
         String sql = "SELECT * FROM users WHERE user_id IN (SELECT request_to FROM friendship WHERE request_from = ?" +
                 " AND is_confirmed = true UNION SELECT request_from FROM friendship WHERE request_to = ?)";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), userId, userId);
     }
 
+    @Override
+    public List<User> getCommonFriends(long userId, long otherUserId) {
+        if (findById(userId).isPresent() && findById(otherUserId).isPresent()) {
+            List<Long> userFriends = new ArrayList<>(findFriendsByUserId(userId));
+            userFriends = userFriends.stream()
+                    .filter(findFriendsByUserId(otherUserId)::contains)
+                    .collect(Collectors.toList());
 
-
-
+            List<User> commonFriends = new ArrayList<>();
+            for (Long id : userFriends) {
+                User friend = findById(id).get();
+                commonFriends.add(friend);
+            }
+            return commonFriends;
+        } else if (findById(userId).isPresent()) {
+            log.warn("Пользователь с id " + otherUserId + " не найден");
+            throw new InvalidIdException("Пользователь с id " + otherUserId + " не найден");
+        } else {
+            log.warn("Пользователь с id " + userId + " не найден");
+            throw new InvalidIdException("Пользователь с id " + userId + " не найден");
+        }
+    }
 
     public Collection<Long> findFriendsByUserId(long userId) {
         String sql = "SELECT user_id FROM users WHERE user_id IN  (SELECT request_to FROM friendship WHERE request_from = ?" +

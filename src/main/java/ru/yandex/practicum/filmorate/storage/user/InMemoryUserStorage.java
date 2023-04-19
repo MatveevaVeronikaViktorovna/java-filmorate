@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.validators.UserValidator;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -98,6 +99,7 @@ public class InMemoryUserStorage implements UserStorage {
         }
     }
 
+    @Override
     public List<User> getFriends(long userId) {
         if (findById(userId).isPresent()) {
             Set<Long> userFriendsId = findById(userId).get().getFriends();
@@ -107,6 +109,31 @@ public class InMemoryUserStorage implements UserStorage {
                 friends.add(friend);
             }
             return friends;
+        } else {
+            log.warn("Пользователь с id " + userId + " не найден");
+            throw new InvalidIdException("Пользователь с id " + userId + " не найден");
+        }
+    }
+
+    @Override
+    public List<User> getCommonFriends(long userId, long otherUserId) {
+        if (findById(userId).isPresent() && findById(otherUserId).isPresent()) {
+            User user = findById(userId).get();
+            User otherUser = findById(otherUserId).get();
+            List<Long> userFriends = new ArrayList<>(user.getFriends());
+            userFriends = userFriends.stream()
+                    .filter(otherUser.getFriends()::contains)
+                    .collect(Collectors.toList());
+
+            List<User> commonFriends = new ArrayList<>();
+            for (Long id : userFriends) {
+                User friend = findById(id).get();
+                commonFriends.add(friend);
+            }
+            return commonFriends;
+        } else if (findById(userId).isPresent()) {
+            log.warn("Пользователь с id " + otherUserId + " не найден");
+            throw new InvalidIdException("Пользователь с id " + otherUserId + " не найден");
         } else {
             log.warn("Пользователь с id " + userId + " не найден");
             throw new InvalidIdException("Пользователь с id " + userId + " не найден");
