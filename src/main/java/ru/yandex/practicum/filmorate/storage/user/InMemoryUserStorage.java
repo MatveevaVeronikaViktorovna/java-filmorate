@@ -20,6 +20,14 @@ public class InMemoryUserStorage implements UserStorage {
     private final UserValidator validator = new UserValidator();
     private long newId;
 
+    public Optional<User> findById(Long userId) {
+        if (!users.containsKey(userId)) {
+            log.warn("Пользователь с id " + userId + " не найден");
+            throw new InvalidIdException("Пользователь с id " + userId + " не найден");
+        }
+        return Optional.of(users.get(userId));
+    }
+
     public List<User> findAll() {
         return new ArrayList<>(users.values());
     }
@@ -38,14 +46,6 @@ public class InMemoryUserStorage implements UserStorage {
         users.put(user.getId(), user);
         log.debug("Добавлен новый пользователь: " + user);
         return user;
-    }
-
-    public Optional<User> findById(Long userId) {
-        if (!users.containsKey(userId)) {
-            log.warn("Пользователь с id " + userId + " не найден");
-            throw new InvalidIdException("Пользователь с id " + userId + " не найден");
-        }
-        return Optional.of(users.get(userId));
     }
 
     public User update(User user) {

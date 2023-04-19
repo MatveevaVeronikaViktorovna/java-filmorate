@@ -7,6 +7,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exceptions.InvalidIdException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -25,9 +26,7 @@ import java.util.*;
 @Slf4j
 public class FilmDbStorage implements FilmStorage {
 
-    private final Map<Long, Film> films = new HashMap<>();
     private final FilmValidator validator = new FilmValidator();
-    private long newId;
 
     private final JdbcTemplate jdbcTemplate;
     private final MpaDbStorage mpaDbStorage;
@@ -58,7 +57,7 @@ public class FilmDbStorage implements FilmStorage {
             film.setLikes(likes);
             return Optional.of(film);
         } else {
-            log.info("Фильм с идентификатором {} не найден.", filmId);
+            log.warn("Фильм с id " + filmId + " не найден");
             return Optional.empty();
         }
     }
@@ -123,44 +122,69 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film update(Film film) {
-        String sql = "update films set name = ?, description = ?, release_date = ?, duration = ?, mpa_id = ? " +
-                "where film_id = ?";
-        jdbcTemplate.update(sql,
-                film.getName(),
-                film.getDescription(),
-                java.sql.Date.valueOf(film.getReleaseDate()),
-                film.getDuration(),
-                film.getMpa().getId(),
-                film.getId());
+        if (film == null) {
+            log.warn("Валидация не пройдена: не заполнены поля фильма");
+            throw new ValidationException("Валидация не пройдена: не заполнены поля фильма");
+        }
+        if (findById(film.getId()).isPresent()) {
+            String sql = "update films set name = ?, description = ?, release_date = ?, duration = ?, mpa_id = ? " +
+                    "where film_id = ?";
+            jdbcTemplate.update(sql,
+                    film.getName(),
+                    film.getDescription(),
+                    java.sql.Date.valueOf(film.getReleaseDate()),
+                    film.getDuration(),
+                    film.getMpa().getId(),
+                    film.getId());
 
-        String sqlForDeleteGenres = "delete from film_genre where film_id = ?";
-        jdbcTemplate.update(sqlForDeleteGenres, film.getId());
+            String sqlForDeleteGenres = "delete from film_genre where film_id = ?";
+            jdbcTemplate.update(sqlForDeleteGenres, film.getId());
 
-        if(film.getGenres().size() > 0) {
-            String sqlForGenres = "insert into film_genre (film_id, genre_id) values (?, ?)";
-            for (Genre genre : film.getGenres()) {
-                jdbcTemplate.update(sqlForGenres,
-                        film.getId(),
-                        genre.getId());
+            if (film.getGenres().size() > 0) {
+                String sqlForGenres = "insert into film_genre (film_id, genre_id) values (?, ?)";
+                for (Genre genre : film.getGenres()) {
+                    jdbcTemplate.update(sqlForGenres,
+                            film.getId(),
+                            genre.getId());
+                }
             }
+            return findById(film.getId()).get();
+        } else {
+            log.warn("Фильм с id " + film.getId() + " не найден");
+            throw new InvalidIdException("Фильм с id " + film.getId() + " не найден");
         }
-        return findById(film.getId()).get();
-        }
+    }
 
     @Override
     public Film addLike(long filmId, long userId) {
-        String sql = "insert into likes(film_id, user_id) values (?, ?)";
-        jdbcTemplate.update(sql,
-                filmId,
-                userId);
-        return findById(filmId).get();
+        if (findById(filmId).isPresent() && findById(userId).isPresent()) {
+            String sql = "insert into likes(film_id, user_id) values (?, ?)";
+            jdbcTemplate.update(sql,
+                    filmId,
+                    userId);
+            return findById(filmId).get();
+        } else if (findById(filmId).isPresent()) {
+            log.warn("Пользователь с id " + userId + " не найден");
+            throw new InvalidIdException("Пользователь с id " + userId + " не найден");
+        } else {
+            log.warn("Фильм с id " + filmId + " не найден");
+            throw new InvalidIdException("Фильм с id " + filmId + " не найден");
+        }
     }
 
     @Override
     public Film deleteLike(Long filmId, Long userId) {
-        String sqlQuery = "delete from likes where film_id = ? and user_id = ?";
-        jdbcTemplate.update(sqlQuery, filmId, userId);
-        return findById(filmId).get();
+        if (findById(filmId).isPresent() && findById(userId).isPresent()) {
+            String sqlQuery = "delete from likes where film_id = ? and user_id = ?";
+            jdbcTemplate.update(sqlQuery, filmId, userId);
+            return findById(filmId).get();
+        } else if (findById(filmId).isPresent()) {
+            log.warn("Пользователь с id " + userId + " не найден");
+            throw new InvalidIdException("Пользователь с id " + userId + " не найден");
+        } else {
+            log.warn("Фильм с id " + filmId + " не найден");
+            throw new InvalidIdException("Фильм с id " + filmId + " не найден");
+        }
     }
 
     @Override

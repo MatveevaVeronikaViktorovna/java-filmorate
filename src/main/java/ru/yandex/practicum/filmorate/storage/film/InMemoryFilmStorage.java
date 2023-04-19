@@ -18,6 +18,13 @@ public class InMemoryFilmStorage implements FilmStorage {
     private final FilmValidator validator = new FilmValidator();
     private long newId;
 
+    public Optional<Film> findById(Long filmId) {
+        if (!films.containsKey(filmId)) {
+            log.warn("Фильм с id " + filmId + " не найден");
+            throw new InvalidIdException("Фильм с id " + filmId + " не найден");
+        }
+        return Optional.of(films.get(filmId));
+    }
 
     public List<Film> findAll() {
         return new ArrayList<>(films.values());
@@ -52,14 +59,6 @@ public class InMemoryFilmStorage implements FilmStorage {
             log.warn("Фильм с id " + film.getId() + " не найден");
             throw new InvalidIdException("Фильм с id " + film.getId() + " не найден");
         }
-    }
-
-    public Optional<Film> findById(Long filmId) {
-        if (!films.containsKey(filmId)) {
-            log.warn("Фильм с id " + filmId + " не найден");
-            throw new InvalidIdException("Фильм с id " + filmId + " не найден");
-        }
-        return Optional.of(films.get(filmId));
     }
 
     @Override

@@ -99,39 +99,55 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User update(User user) {
-        String sql = "update users set email = ?, login = ?, name = ?, birthday = ? where user_id = ?";
-        jdbcTemplate.update(sql,
-                user.getEmail(),
-                user.getLogin(),
-                user.getName(),
-                java.sql.Date.valueOf(user.getBirthday()),
-                user.getId());
-
-        return findById(user.getId()).get();
+        if (user == null) {
+            log.warn("Валидация не пройдена: не заполнены поля пользователя");
+            throw new ValidationException("Валидация не пройдена: не заполнены поля пользователя");
+        }
+        if (findById(user.getId()).isPresent()) {
+            String sql = "update users set email = ?, login = ?, name = ?, birthday = ? where user_id = ?";
+            jdbcTemplate.update(sql,
+                    user.getEmail(),
+                    user.getLogin(),
+                    user.getName(),
+                    java.sql.Date.valueOf(user.getBirthday()),
+                    user.getId());
+            return findById(user.getId()).get();
+        } else {
+            log.warn("Пользователь с id " + user.getId() + " не найден");
+            throw new InvalidIdException("Пользователь с id " + user.getId() + " не найден");
+        }
     }
 
     @Override
     public User addFriend(long requestFrom, long requestTo) {
-        if (findById(requestFrom).get().getFriends().contains(requestTo)) {
-            String sql = "update friendship set is_confirmed = ? where request_from = ? and request_to = ?";
-            jdbcTemplate.update(sql,
-                    true,
-                    requestTo,
-                    requestFrom);
+        if (findById(requestFrom).isPresent() && findById(requestTo).isPresent()) {
+            if (findById(requestTo).get().getFriends().contains(requestFrom)) {
+                String sql = "update friendship set is_confirmed = ? where request_from = ? and request_to = ?";
+                jdbcTemplate.update(sql,
+                        true,
+                        requestTo,
+                        requestFrom);
+            } else {
+                String sql = "insert into friendship(request_from, request_to, is_confirmed) values (?, ?, ?)";
+                jdbcTemplate.update(sql,
+                        requestFrom,
+                        requestTo,
+                        false);
+            }
+            return findById(requestFrom).get();
+        } else if (findById(requestFrom).isPresent()) {
+            log.warn("Пользователь с id " + requestTo + " не найден");
+            throw new InvalidIdException("Пользователь с id " + requestTo + " не найден");
         } else {
-            String sql = "insert into friendship(request_from, request_to, is_confirmed) values (?, ?, ?)";
-            jdbcTemplate.update(sql,
-                    requestFrom,
-                    requestTo,
-                    false);
+            log.warn("Пользователь с id " + requestFrom + " не найден");
+            throw new InvalidIdException("Пользователь с id " + requestTo + " не найден");
         }
-        return findById(requestFrom).get();
     }
 
     @Override
     public User deleteFriend(long requestFrom, long requestTo) {
-        if (findById(requestTo).get().getFriends().contains(requestFrom)) {
-            if (findById(requestFrom).get().getFriends().contains(requestTo)) { // проверка на взаимность
+        if (findById(requestFrom).get().getFriends().contains(requestTo)) {
+            if (findById(requestTo).get().getFriends().contains(requestFrom)) { // проверка на взаимность
                 String sql1 = "delete from friendship where request_from = ? and request_to = ?";
                 jdbcTemplate.update(sql1, requestFrom, requestTo);
                 String sql2 = "delete from friendship where request_from = ? and request_to = ?";
@@ -148,14 +164,15 @@ public class UserDbStorage implements UserStorage {
             }
             return findById(requestFrom).get();
         } else {
-            throw new InvalidIdException("Заявка в друзья от пользователя с id " + requestFrom + " к пользователю с id " + requestTo + " не найдена");
+            throw new InvalidIdException("Пользователь с id " + requestTo+ " не является другом пользователю с id "
+                    + requestFrom);
         }
     }
 
     @Override
     public List<User> getFriends(long userId) {
-        String sql = "SELECT * FROM users WHERE user_id IN (SELECT request_to FROM friendship WHERE request_from = ?" +
-                " AND is_confirmed = true UNION SELECT request_from FROM friendship WHERE request_to = ?)";
+        String sql = "SELECT * FROM users WHERE user_id IN (SELECT request_to FROM friendship WHERE request_from = ? " +
+                "UNION SELECT request_from FROM friendship WHERE request_to = ? AND is_confirmed = true)";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs), userId, userId);
     }
 
@@ -183,8 +200,9 @@ public class UserDbStorage implements UserStorage {
     }
 
     public Collection<Long> findFriendsByUserId(long userId) {
-        String sql = "SELECT user_id FROM users WHERE user_id IN  (SELECT request_to FROM friendship WHERE request_from = ?" +
-                " AND is_confirmed = true UNION SELECT request_from FROM friendship WHERE request_to = ?)";
+        String sql = "SELECT user_id FROM users WHERE user_id IN (SELECT request_to FROM friendship " +
+                "WHERE request_from = ? UNION SELECT request_from FROM friendship WHERE request_to = ? " +
+                "AND is_confirmed = true)";
         return jdbcTemplate.query(sql, (rs, rowNum) -> rs.getLong("user_id"), userId, userId);
     }
 
