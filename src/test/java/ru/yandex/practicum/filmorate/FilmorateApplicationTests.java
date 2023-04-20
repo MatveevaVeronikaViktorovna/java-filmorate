@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Sql(value = {"classpath:test_data.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @Sql(value = {"classpath:drop_test_data.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-class FilmoRateApplicationTests {
+class FilmorateApplicationTests {
 
     private final MpaDbStorage mpaStorage;
     private final GenreDbStorage genreStorage;
