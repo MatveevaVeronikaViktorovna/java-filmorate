@@ -14,7 +14,7 @@ class UserValidatorTest {
 
     @Test
     void shouldReturnTrueWhenEmailNotEmptyAndContainsAt() {
-        User correctUser = new User("user@mail.ru", "user", "UserName", LocalDate.of(1991,
+        User correctUser = new User(1,"user@mail.ru", "user", "UserName", LocalDate.of(1991,
                 12, 12));
         boolean isValid = validator.isValidEmail(correctUser.getEmail());
 
@@ -23,7 +23,7 @@ class UserValidatorTest {
 
     @Test
     void shouldThrowExceptionWhenEmailEmpty() {
-        User incorrectUser = new User(" ", "user", "UserName", LocalDate.of(1991,
+        User incorrectUser = new User(1," ", "user", "UserName", LocalDate.of(1991,
                 12, 12));
 
         final ValidationException exception = assertThrows(
@@ -36,7 +36,7 @@ class UserValidatorTest {
 
     @Test
     void shouldThrowExceptionWhenEmailNoContainAt() {
-        User incorrectUser = new User("usermail.ru", "user", "UserName", LocalDate.of(1991,
+        User incorrectUser = new User(1,"usermail.ru", "user", "UserName", LocalDate.of(1991,
                 12, 12));
 
         final ValidationException exception = assertThrows(
@@ -49,7 +49,7 @@ class UserValidatorTest {
 
     @Test
     void shouldReturnTrueWhenLoginNotEmptyAndWithoutSpace() {
-        User correctUser = new User("user@mail.ru", "user", "UserName", LocalDate.of(1991,
+        User correctUser = new User(1,"user@mail.ru", "user", "UserName", LocalDate.of(1991,
                 12, 12));
         boolean isValid = validator.isValidLogin(correctUser.getLogin());
 
@@ -58,7 +58,7 @@ class UserValidatorTest {
 
     @Test
     void shouldThrowExceptionWhenLoginEmpty() {
-        User incorrectUser = new User("user@mail.ru", " ", "UserName", LocalDate.of(1991,
+        User incorrectUser = new User(1,"user@mail.ru", " ", "UserName", LocalDate.of(1991,
                 12, 12));
 
         final ValidationException exception = assertThrows(
@@ -70,7 +70,7 @@ class UserValidatorTest {
 
     @Test
     void shouldThrowExceptionWhenLoginContainsSpace() {
-        User incorrectUser = new User("user@mail.ru", "user user", "UserName", LocalDate.of(1991,
+        User incorrectUser = new User(1,"user@mail.ru", "user user", "UserName", LocalDate.of(1991,
                 12, 12));
 
         final ValidationException exception = assertThrows(
@@ -82,7 +82,7 @@ class UserValidatorTest {
 
     @Test
     void shouldReturnTrueWhenBirthdayIsBeforeNow() {
-        User correctUser = new User("user@mail.ru", "user", "UserName", LocalDate.of(2023,
+        User correctUser = new User(1,"user@mail.ru", "user", "UserName", LocalDate.of(2023,
                 3, 5));
         boolean isValid = validator.isValidBirthday(correctUser.getBirthday());
 
@@ -91,7 +91,7 @@ class UserValidatorTest {
 
     @Test
     void shouldThrowExceptionWhenBirthdayIsAfterNow() {
-        User incorrectUser = new User("user@mail.ru", "user user", "UserName", LocalDate.of(2023,
+        User incorrectUser = new User(1,"user@mail.ru", "user user", "UserName", LocalDate.of(2023,
                 4, 30));
 
         final ValidationException exception = assertThrows(
@@ -103,7 +103,7 @@ class UserValidatorTest {
 
     @Test
     void shouldReturnLoginWhenNameEmpty() {
-        User userWithoutName = new User("user@mail.ru", "user", " ", LocalDate.of(2023,
+        User userWithoutName = new User(1,"user@mail.ru", "user", " ", LocalDate.of(2023,
                 3, 5));
         boolean isValid = validator.isValid(userWithoutName);
 
@@ -113,7 +113,7 @@ class UserValidatorTest {
 
     @Test
     void shouldReturnTrueWhenAllIsValid() {
-        User correctUser = new User("user@mail.ru", "user", "UserName", LocalDate.of(1991,
+        User correctUser = new User(1,"user@mail.ru", "user", "UserName", LocalDate.of(1991,
                 12, 12));
         boolean isValid = validator.isValid(correctUser);
 

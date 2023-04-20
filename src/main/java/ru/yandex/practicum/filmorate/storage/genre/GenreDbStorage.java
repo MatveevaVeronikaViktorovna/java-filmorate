@@ -10,7 +10,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -39,12 +39,12 @@ public class GenreDbStorage {
         }
     }
 
-    public Collection<Genre> findAll() {
+    public List<Genre> findAll() {
         String sql = "select * from genres";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeGenre(rs));
     }
 
-    public Collection<Genre> findByFilmId(Long filmId) {
+    public List<Genre> findByFilmId(Long filmId) {
         String sql = "select * from genres where genre_id in (select genre_id from film_genre where film_id = ?)";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeGenre(rs), filmId);
     }

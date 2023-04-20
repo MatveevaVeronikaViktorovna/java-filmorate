@@ -9,7 +9,7 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -37,7 +37,7 @@ public class MpaDbStorage {
         }
     }
 
-    public Collection<Mpa> findAll() {
+    public List<Mpa> findAll() {
         String sql = "select * from mpa";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeMpa(rs));
     }

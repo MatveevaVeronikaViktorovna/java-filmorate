@@ -197,7 +197,7 @@ public class UserDbStorage implements UserStorage {
         }
     }
 
-    public Collection<Long> findFriendsByUserId(long userId) {
+    private Collection<Long> findFriendsByUserId(long userId) {
         String sql = "SELECT user_id FROM users WHERE user_id IN (SELECT request_to FROM friendship " +
                 "WHERE request_from = ? UNION SELECT request_from FROM friendship WHERE request_to = ? " +
                 "AND is_confirmed = true)";

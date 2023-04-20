@@ -192,7 +192,7 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs), count);
     }
 
-    public Collection<Long> findLikesByFilmId(long filmId) {
+    private Collection<Long> findLikesByFilmId(long filmId) {
         String sql = "select user_id from likes where film_id = ?";
         return jdbcTemplate.query(sql, (rs, rowNum) -> rs.getLong("user_id"), filmId);
     }
