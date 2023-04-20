@@ -51,7 +51,6 @@ class FilmoRateApplicationTests {
         assertThat(allMpa)
                 .size().isEqualTo(5);
     }
-    
     @Test
     public void testFindGenreById() {
         Optional<Genre> genreOptional = genreStorage.findById(1);
