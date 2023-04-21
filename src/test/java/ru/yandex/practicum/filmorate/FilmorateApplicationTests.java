@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
+import ru.yandex.practicum.filmorate.storage.like.LikeDbStorage;
 import ru.yandex.practicum.filmorate.storage.mpa.MpaDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
@@ -33,6 +34,7 @@ class FilmorateApplicationTests {
     private final GenreDbStorage genreStorage;
     private final FilmDbStorage filmStorage;
     private final UserDbStorage userStorage;
+    private final LikeDbStorage likeStorage;
 
 
     @Test
@@ -116,30 +118,36 @@ class FilmorateApplicationTests {
 
     @Test
     public void testAddLike() {
-        Film film = filmStorage.findById(1L).get();
+        Film film = filmStorage.findById(2L).get();
         User user = userStorage.findById(1L).get();
-        Film filmWithOneLike = filmStorage.addLike(film.getId(), user.getId());
-        Set<Long> likes = filmWithOneLike.getLikes();
-        assertThat(likes)
-                .size().isEqualTo(1);
+        List<Film> popularFilms = filmStorage.findMostPopularFilms(3);
+        assertThat(popularFilms.get(0))
+                .hasFieldOrPropertyWithValue("name", "Титаник");
+        likeStorage.addLike(film.getId(), user.getId());
+        List<Film> updatedPopularFilms = filmStorage.findMostPopularFilms(3);
+        assertThat(updatedPopularFilms.get(0))
+                .hasFieldOrPropertyWithValue("name", "Убить Билла");
     }
 
     @Test
     public void testDeleteLike() {
-        Film film = filmStorage.findById(1L).get();
+        Film film = filmStorage.findById(2L).get();
         User user = userStorage.findById(1L).get();
-        Film filmWithOneLike = filmStorage.addLike(film.getId(), user.getId());
-        Film filmWithoutLikes = filmStorage.deleteLike(filmWithOneLike.getId(), user.getId());
-        Set<Long> likes = filmWithoutLikes.getLikes();
-        assertThat(likes)
-                .size().isEqualTo(0);
+        likeStorage.addLike(film.getId(), user.getId());
+        List<Film> popularFilms = filmStorage.findMostPopularFilms(3);
+        assertThat(popularFilms.get(0))
+                .hasFieldOrPropertyWithValue("name", "Убить Билла");
+        likeStorage.deleteLike(film.getId(), user.getId());
+        List<Film> updatedPopularFilms = filmStorage.findMostPopularFilms(3);
+        assertThat(updatedPopularFilms.get(0))
+                .hasFieldOrPropertyWithValue("name", "Титаник");
     }
 
     @Test
     public void testFindMostPopularFilms() {
         Film film = filmStorage.findById(1L).get();
         User user = userStorage.findById(1L).get();
-        Film filmWithOneLike = filmStorage.addLike(film.getId(), user.getId());
+        likeStorage.addLike(film.getId(), user.getId());
         List<Film> popularFilms = filmStorage.findMostPopularFilms(3);
         assertThat(popularFilms)
                 .size().isEqualTo(2);
