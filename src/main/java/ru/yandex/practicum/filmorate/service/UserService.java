@@ -4,89 +4,99 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.InvalidIdException;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.friendship.FriendshipDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.validators.UserValidator;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 public class UserService {
 
-    private final UserStorage storage;
+    private final UserStorage userStorage;
+    private final FriendshipDbStorage friendshipStorage;
+    private final UserValidator validator = new UserValidator();
 
     @Autowired
-    public UserService(UserStorage storage) {
-        this.storage = storage;
-    }
-
-    public List<User> findAll() {
-        return storage.findAll();
-    }
-
-    public User create(User user) {
-        return storage.create(user);
-    }
-
-    public User update(User user) {
-        return storage.update(user);
+    public UserService(UserStorage userStorage, FriendshipDbStorage friendshipStorage) {
+        this.userStorage = userStorage;
+        this.friendshipStorage = friendshipStorage;
     }
 
     public User findById(Long userId) {
-        if (storage.findById(userId).isPresent()) {
-            return storage.findById(userId).get();
+        if (userStorage.findById(userId).isPresent()) {
+            return userStorage.findById(userId).get();
         } else {
             log.warn("Пользователь с id " + userId + " не найден");
             throw new InvalidIdException("Пользователь с id " + userId + " не найден");
         }
     }
 
-    public User addFriend(long userId, long friendId) {
-        if (storage.findById(userId).isPresent() && storage.findById(friendId).isPresent()) {
-            User user = storage.findById(userId).get();
-            User friend = storage.findById(friendId).get();
-            user.getFriends().add(friendId);
-            friend.getFriends().add(userId);
-            log.debug("Пользователи с id " + userId + " и " + friendId + " добавлены друг другу в друзья");
-            return user;
-        } else if (storage.findById(userId).isPresent()) {
-            log.warn("Пользователь с id " + friendId + " не найден");
-            throw new InvalidIdException("Пользователь с id " + friendId + " не найден");
+    public List<User> findAll() {
+        return userStorage.findAll();
+    }
+
+    public User create(User user) {
+        if (user == null) {
+            log.warn("Валидация не пройдена: не заполнены поля пользователя");
+            throw new ValidationException("Валидация не пройдена: не заполнены поля пользователя");
+        }
+        if (!validator.isValid(user)) {
+            log.warn("Валидация не пройдена");
+            throw new ValidationException("Валидация не пройдена");
+        }
+        return userStorage.create(user);
+    }
+
+    public User update(User user) {
+        if (user == null) {
+            log.warn("Валидация не пройдена: не заполнены поля пользователя");
+            throw new ValidationException("Валидация не пройдена: не заполнены поля пользователя");
+        }
+        if (!validator.isValid(user)) {
+            log.warn("Валидация не пройдена");
+            throw new ValidationException("Валидация не пройдена");
+        }
+        if (userStorage.findById(user.getId()).isPresent()) {
+            return userStorage.update(user);
         } else {
-            log.warn("Пользователь с id " + userId + " не найден");
-            throw new InvalidIdException("Пользователь с id " + userId + " не найден");
+            log.warn("Пользователь с id " + user.getId() + " не найден");
+            throw new InvalidIdException("Пользователь с id " + user.getId() + " не найден");
         }
     }
 
-    public User deleteFriend(long userId, long friendId) {
-        if (storage.findById(userId).isPresent() && storage.findById(friendId).isPresent()) {
-            User user = storage.findById(userId).get();
-            User friend = storage.findById(friendId).get();
-            user.getFriends().remove(friendId);
-            friend.getFriends().remove(userId);
-            log.debug("Пользователи с id " + userId + " и " + friendId + " удалены друг у друга из друзей");
-            return user;
-        } else if (storage.findById(userId).isPresent()) {
-            log.warn("Пользователь с id " + friendId + " не найден");
-            throw new InvalidIdException("Пользователь с id " + friendId + " не найден");
+    public User addFriend(long requestFrom, long requestTo) {
+        if (userStorage.findById(requestFrom).isPresent() && userStorage.findById(requestTo).isPresent()) {
+            friendshipStorage.addFriend(requestFrom, requestTo);
+            return userStorage.findById(requestFrom).get();
+        } else if (userStorage.findById(requestFrom).isPresent()) {
+            log.warn("Пользователь с id " + requestTo + " не найден");
+            throw new InvalidIdException("Пользователь с id " + requestTo + " не найден");
         } else {
-            log.warn("Пользователь с id " + userId + " не найден");
-            throw new InvalidIdException("Пользователь с id " + userId + " не найден");
+            log.warn("Пользователь с id " + requestFrom + " не найден");
+            throw new InvalidIdException("Пользователь с id " + requestTo + " не найден");
+        }
+    }
+
+    public User deleteFriend(long requestFrom, long requestTo) {
+        if (userStorage.findById(requestFrom).isPresent() && userStorage.findById(requestTo).isPresent()) {
+            friendshipStorage.deleteFriend(requestFrom, requestTo);
+            return userStorage.findById(requestFrom).get();
+        } else if (userStorage.findById(requestFrom).isPresent()) {
+            log.warn("Пользователь с id " + requestTo + " не найден");
+            throw new InvalidIdException("Пользователь с id " + requestTo + " не найден");
+        } else {
+            log.warn("Пользователь с id " + requestFrom + " не найден");
+            throw new InvalidIdException("Пользователь с id " + requestTo + " не найден");
         }
     }
 
     public List<User> getFriends(long userId) {
-        if (storage.findById(userId).isPresent()) {
-            Set<Long> userFriendsId = storage.findById(userId).get().getFriends();
-            List<User> friends = new ArrayList<>();
-            for (Long id : userFriendsId) {
-                User friend = storage.findById(id).get();
-                friends.add(friend);
-            }
-            return friends;
+        if (userStorage.findById(userId).isPresent()) {
+            return friendshipStorage.getFriends(userId);
         } else {
             log.warn("Пользователь с id " + userId + " не найден");
             throw new InvalidIdException("Пользователь с id " + userId + " не найден");
@@ -94,21 +104,9 @@ public class UserService {
     }
 
     public List<User> getCommonFriends(long userId, long otherUserId) {
-        if (storage.findById(userId).isPresent() && storage.findById(otherUserId).isPresent()) {
-            User user = storage.findById(userId).get();
-            User otherUser = storage.findById(otherUserId).get();
-            List<Long> userFriends = new ArrayList<>(user.getFriends());
-            userFriends = userFriends.stream()
-                    .filter(otherUser.getFriends()::contains)
-                    .collect(Collectors.toList());
-
-            List<User> commonFriends = new ArrayList<>();
-            for (Long id : userFriends) {
-                User friend = storage.findById(id).get();
-                commonFriends.add(friend);
-            }
-            return commonFriends;
-        } else if (storage.findById(userId).isPresent()) {
+        if (userStorage.findById(userId).isPresent() && userStorage.findById(otherUserId).isPresent()) {
+            return friendshipStorage.getCommonFriends(userId, otherUserId);
+        } else if (userStorage.findById(userId).isPresent()) {
             log.warn("Пользователь с id " + otherUserId + " не найден");
             throw new InvalidIdException("Пользователь с id " + otherUserId + " не найден");
         } else {
