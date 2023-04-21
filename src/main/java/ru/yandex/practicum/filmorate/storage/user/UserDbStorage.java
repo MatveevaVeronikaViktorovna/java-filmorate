@@ -19,7 +19,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Component("userDbStorage")
+@Component
 @Slf4j
 public class UserDbStorage implements UserStorage {
 
