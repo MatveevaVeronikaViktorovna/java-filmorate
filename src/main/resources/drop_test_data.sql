@@ -42,7 +42,6 @@ CREATE TABLE IF NOT EXISTS likes (
 CREATE TABLE IF NOT EXISTS friendship (
     request_from BIGINT NOT NULL REFERENCES users (user_id),
     request_to BIGINT NOT NULL REFERENCES users (user_id),
-    is_confirmed boolean NOT NULL,
     PRIMARY KEY (request_from, request_to)
 ); 
 

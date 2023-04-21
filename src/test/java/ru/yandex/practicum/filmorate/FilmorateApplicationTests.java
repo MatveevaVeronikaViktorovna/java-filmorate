@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
+import ru.yandex.practicum.filmorate.storage.friendship.FriendshipDbStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
 import ru.yandex.practicum.filmorate.storage.like.LikeDbStorage;
 import ru.yandex.practicum.filmorate.storage.mpa.MpaDbStorage;
@@ -19,7 +20,6 @@ import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,6 +35,7 @@ class FilmorateApplicationTests {
     private final FilmDbStorage filmStorage;
     private final UserDbStorage userStorage;
     private final LikeDbStorage likeStorage;
+    private final FriendshipDbStorage friendshipStorage;
 
 
     @Test
@@ -197,45 +198,36 @@ class FilmorateApplicationTests {
 
     @Test
     public void testAddFriend() {
-        User user = userStorage.findById(1L).get();
-        User friend = userStorage.findById(2L).get();
-        User userWithOneFriend = userStorage.addFriend(user.getId(), friend.getId());
-        Set<Long> friends = userWithOneFriend.getFriends();
+        friendshipStorage.addFriend(1, 2);
+        List<User> friends = friendshipStorage.getFriends(1);
         assertThat(friends)
                 .size().isEqualTo(1);
     }
 
     @Test
     public void testDeleteFriend() {
-        User user = userStorage.findById(1L).get();
-        User friend = userStorage.findById(2L).get();
-        User userWithOneFriend = userStorage.addFriend(user.getId(), friend.getId());
-        User userWithoutFriends = userStorage.deleteFriend(userWithOneFriend.getId(), friend.getId());
-        Set<Long> friends = userWithoutFriends.getFriends();
+        friendshipStorage.addFriend(1, 2);
+        friendshipStorage.deleteFriend(1, 2);
+        List<User> friends = friendshipStorage.getFriends(1);
         assertThat(friends)
                 .size().isEqualTo(0);
     }
 
     @Test
     public void testGetFriends() {
-        User user = userStorage.findById(1L).get();
-        User friend = userStorage.findById(2L).get();
-        User userWithOneFriend = userStorage.addFriend(user.getId(), friend.getId());
-        List<User> userFriends = userStorage.getFriends(userWithOneFriend.getId());
-        assertThat(userFriends)
+        friendshipStorage.addFriend(1, 2);
+        List<User> friends = friendshipStorage.getFriends(1);
+        assertThat(friends)
                 .size().isEqualTo(1);
-        assertThat(userFriends.get(0))
+        assertThat(friends.get(0))
                 .hasFieldOrPropertyWithValue("name", "Sever Matveev");
     }
 
     @Test
     public void testGetCommonFriends() {
-        User user = userStorage.findById(1L).get();
-        User friend = userStorage.findById(2L).get();
-        User commonFriend = userStorage.findById(3L).get();
-        User userAddCommonFriend = userStorage.addFriend(user.getId(), commonFriend.getId());
-        User friendAddCommonFriend = userStorage.addFriend(friend.getId(), commonFriend.getId());
-        List<User> commonFriends = userStorage.getCommonFriends(userAddCommonFriend.getId(), friendAddCommonFriend.getId());
+        friendshipStorage.addFriend(1, 3);
+        friendshipStorage.addFriend(2, 3);
+        List<User> commonFriends = friendshipStorage.getCommonFriends(1, 2);
         assertThat(commonFriends)
                 .size().isEqualTo(1);
         assertThat(commonFriends.get(0))
