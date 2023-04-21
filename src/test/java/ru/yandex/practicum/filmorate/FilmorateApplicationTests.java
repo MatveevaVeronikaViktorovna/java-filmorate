@@ -109,12 +109,12 @@ class FilmorateApplicationTests {
     @Test
     public void testUpdateFilm() {
         Film film = filmStorage.findById(1L).get();
-        film.setDescription("Все умрут, а я останусь");
+        film.setName("Titanik");
         Film updatedFilm = filmStorage.update(film);
         assertThat(updatedFilm)
                 .isNotNull()
-                .hasFieldOrPropertyWithValue("name", "Титаник")
-                .hasFieldOrPropertyWithValue("description", "Все умрут, а я останусь");
+                .hasFieldOrPropertyWithValue("name", "Titanik")
+                .hasFieldOrPropertyWithValue("description", "Любовь на корабле");
     }
 
     @Test
@@ -187,12 +187,12 @@ class FilmorateApplicationTests {
     @Test
     public void testUpdateUser() {
         User user = userStorage.findById(1L).get();
-        user.setLogin("VeronaM");
+        user.setName("Matveeva Veronika");
         User updatedUser = userStorage.update(user);
         assertThat(updatedUser)
                 .isNotNull()
-                .hasFieldOrPropertyWithValue("name", "Veronika Matveeva")
-                .hasFieldOrPropertyWithValue("login", "VeronaM");
+                .hasFieldOrPropertyWithValue("name", "Matveeva Veronika")
+                .hasFieldOrPropertyWithValue("login", "veronaIV");
     }
 
 
